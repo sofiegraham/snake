@@ -3,7 +3,8 @@ class Helpers {
   nextPosition(currentPos, direction) {
     const dir = Helpers.DIRECTIONS[direction];
     return [currentPos[0] + dir[0], currentPos[1] + dir[1]];
-  
+  }
+
 
 
 }

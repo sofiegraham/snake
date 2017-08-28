@@ -3,9 +3,17 @@ const Helpers = require('./helpers.js');
 class Snake {
   constructor(pos) {
     this.pos = pos;
-    this.direction = "S";
-    this.segments = [[0,0]];
+    this.dir = "S";
+    this.segments = [pos];
 
+  }
+
+  move() {
+    this.pos = Helpers.nextPosition(pos,dir);
+  }
+
+  turn(direction) {
+    this.dir = direction;
   }
 
 
