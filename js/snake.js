@@ -1,4 +1,4 @@
-const Helpers = require('./helpers.js');
+const helpers = require('./helpers.js');
 
 class Snake {
   constructor(pos) {
@@ -9,7 +9,9 @@ class Snake {
   }
 
   move() {
-    this.pos = Helpers.nextPosition(pos,dir);
+    this.pos = helpers.nextPosition(this.pos,this.dir);
+    this.segments.pop();
+    this.segments.unshift(this.pos);
   }
 
   turn(direction) {

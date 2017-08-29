@@ -5,11 +5,11 @@ class View {
     this.$el = $el;
     this.board = new Board();
     this.bindKeyListeners();
-    setInterval(this.step.bind(this), 10);
+    setInterval(this.step.bind(this), 1000);
   }
 
   bindKeyListeners() {
-    $(document).on('keydown', this.changeDir);
+    $(document).on('keydown', this.changeDir(event));
   }
 
   changeDir(event) {
@@ -20,18 +20,26 @@ class View {
   }
 
   step() {
-    //this.board.snake.move();
-    this.draw();
+    this.board.snake.move();
+    this.drawBoard();
+    this.drawSnake();
   }
 
-  draw() {
+  drawSnake() {
+    this.board.snake.segments.forEach((arr)=> {
+      const segmentPos = JSON.stringify(arr);
+      this.$el.find('#' + segmentPos).addClass('apple');
+      $('#' + segmentPos).removeClass('empty');
+    });
+  }
+
+  drawBoard() {
     this.$el.empty();
     this.$el.append('<table id="board" ></table>');
     this.board.grid.forEach((arr, aIdx) => {
       $('#board').append('<tr id="row' + aIdx + '"></tr>')
       arr.forEach((el, elIdx)=> {
-        const newSquare = $('<td class="square" id="' + [aIdx,elIdx] + '"></td>');
-        newSquare.addClass(el.filler);
+        const newSquare = $('<td class="square empty" id="' + JSON.stringify([aIdx,elIdx]) + '"></td>');
         newSquare.data("pos", [aIdx,elIdx]);
         $('#row' + aIdx).append(newSquare);
       })

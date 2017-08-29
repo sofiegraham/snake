@@ -87,11 +87,11 @@ class View {
     this.$el = $el;
     this.board = new Board();
     this.bindKeyListeners();
-    setInterval(this.step.bind(this), 10);
+    setInterval(this.step.bind(this), 1000);
   }
 
   bindKeyListeners() {
-    $(document).on('keydown', this.changeDir);
+    $(document).on('keydown', this.changeDir(event));
   }
 
   changeDir(event) {
@@ -102,18 +102,26 @@ class View {
   }
 
   step() {
-    //this.board.snake.move();
-    this.draw();
+    this.board.snake.move();
+    this.drawBoard();
+    this.drawSnake();
   }
 
-  draw() {
+  drawSnake() {
+    this.board.snake.segments.forEach((arr)=> {
+      const segmentPos = JSON.stringify(arr);
+      this.$el.find('#' + segmentPos).addClass('apple');
+      $('#' + segmentPos).removeClass('empty');
+    });
+  }
+
+  drawBoard() {
     this.$el.empty();
     this.$el.append('<table id="board" ></table>');
     this.board.grid.forEach((arr, aIdx) => {
       $('#board').append('<tr id="row' + aIdx + '"></tr>')
       arr.forEach((el, elIdx)=> {
-        const newSquare = $('<td class="square" id="' + [aIdx,elIdx] + '"></td>');
-        newSquare.addClass(el.filler);
+        const newSquare = $('<td class="square empty" id="' + JSON.stringify([aIdx,elIdx]) + '"></td>');
         newSquare.data("pos", [aIdx,elIdx]);
         $('#row' + aIdx).append(newSquare);
       })
@@ -141,15 +149,31 @@ const Snake = __webpack_require__(4);
 class Board {
   constructor() {
     this.apples = [[0,0]];
-    this.grid = Array(Board.SIZE).fill("").map(function(el) {
-      return Array(Board.SIZE).fill({filled: 'none'});
-    });
+    this.grid = this.cleanGrid();
     this.snake = new Snake(this.spawnPoint());
   }
 
   spawnPoint() {
     const mid = Math.floor(this.grid.length/2);
     return [mid,mid];
+  }
+
+  // stateOfBoard() {
+  //   this.grid = this.cleanGrid();
+  //   this.mapItems(this.apples, 'apple');
+  //   this.mapItems(this.snake.segments, 'snake-body');
+  // }
+  //
+  // mapItems(arr, className) {
+  //   arr.forEach((pos)=> {
+  //     this.grid[pos[0]][pos[1]].state = className};
+  //   });
+  // }
+
+  cleanGrid() {
+    return Array(Board.SIZE).fill("").map(function(el) {
+      return Array(Board.SIZE).fill(undefined);
+    });
   }
 }
 
@@ -162,7 +186,7 @@ module.exports = Board;
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Helpers = __webpack_require__(5);
+const helpers = __webpack_require__(5);
 
 class Snake {
   constructor(pos) {
@@ -173,7 +197,9 @@ class Snake {
   }
 
   move() {
-    this.pos = Helpers.nextPosition(pos,dir);
+    this.pos = helpers.nextPosition(this.pos,this.dir);
+    this.segments.pop();
+    this.segments.unshift(this.pos);
   }
 
   turn(direction) {
@@ -192,25 +218,22 @@ module.exports = Snake;
 /* 5 */
 /***/ (function(module, exports) {
 
-class Helpers {
+const helpers = {
 
-  nextPosition(currentPos, direction) {
-    const dir = Helpers.DIRECTIONS[direction];
+  nextPosition: function(currentPos, direction) {
+    const dir = helpers.DIRECTIONS[direction];
     return [currentPos[0] + dir[0], currentPos[1] + dir[1]];
+  },
+
+  DIRECTIONS: {
+    N: [-1,0],
+    S: [1,0],
+    E: [0,1],
+    W: [0,-1]
   }
-
-
-
 }
 
-Helpers.DIRECTIONS = {
-  N: [-1,0],
-  S: [1,0],
-  E: [0,1],
-  W: [0,-1]
-}
-
-module.exports = Helpers;
+module.exports = helpers;
 
 
 /***/ })
