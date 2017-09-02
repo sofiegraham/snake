@@ -10,7 +10,6 @@ class View {
 
   bindKeyListeners() {
     $(window).on('keydown', (event) => {
-      console.log(event);
       const dir = event.key;
       if(View.KEYMAP[dir]) {
         this.board.snake.turn(View.KEYMAP[dir]);
@@ -18,24 +17,17 @@ class View {
     });
   }
 
-  changeDir(event) {
-    console.log(event);
-    const dir = event.key;
-    if(View.KEYMAP[dir]) {
-      this.board.snake.turn(dir);
-    }
-  }
-
   step() {
     this.board.snake.move();
     this.drawBoard();
-    this.drawSnake();
+    this.drawPieces(this.board.snake.segments, 'snake-body');
+    this.drawPieces(this.board.apples, 'apple');
   }
 
-  drawSnake() {
-    this.board.snake.segments.forEach((arr)=> {
+  drawPieces(boardPiece, className) {
+    boardPiece.forEach((arr)=> {
       const target = `#${arr[0]}_${arr[1]}`;
-      this.$el.find(target).addClass('snake-body');
+      this.$el.find(target).addClass(className);
     });
   }
 
@@ -50,7 +42,6 @@ class View {
       })
     });
   }
-
 }
 
 View.KEYMAP = {

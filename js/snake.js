@@ -5,6 +5,7 @@ class Snake {
     this.pos = pos;
     this.dir = "S";
     this.segments = [pos];
+    this.generateStarterSegments();
 
   }
 
@@ -18,9 +19,17 @@ class Snake {
     this.dir = direction;
   }
 
+  generateStarterSegments() {
+    while(this.segments.length < Snake.STARTLENGTH) {
+      const segment = [this.pos[0]-1,this.pos[1]];
+      this.segments.push(segment);
+    }
+  }
+
 
 }
 
 Snake.DIRECTIONS = ["N","E","S","W"];
+Snake.STARTLENGTH = 3;
 
 module.exports = Snake;

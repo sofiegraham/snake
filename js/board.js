@@ -12,17 +12,14 @@ class Board {
     return [mid,mid];
   }
 
-  // stateOfBoard() {
-  //   this.grid = this.cleanGrid();
-  //   this.mapItems(this.apples, 'apple');
-  //   this.mapItems(this.snake.segments, 'snake-body');
-  // }
-  //
-  // mapItems(arr, className) {
-  //   arr.forEach((pos)=> {
-  //     this.grid[pos[0]][pos[1]].state = className};
-  //   });
-  // }
+  randomApple() {
+    //places an apple randomly on the board
+  }
+
+  eatCheck() {
+    //check if snakehead is at apple position
+    //if YES, removeApple, randomApple, growSnake
+  }
 
   cleanGrid() {
     return Array(Board.SIZE).fill("").map(function(el) {

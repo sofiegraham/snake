@@ -92,7 +92,6 @@ class View {
 
   bindKeyListeners() {
     $(window).on('keydown', (event) => {
-      console.log(event);
       const dir = event.key;
       if(View.KEYMAP[dir]) {
         this.board.snake.turn(View.KEYMAP[dir]);
@@ -100,24 +99,17 @@ class View {
     });
   }
 
-  changeDir(event) {
-    console.log(event);
-    const dir = event.key;
-    if(View.KEYMAP[dir]) {
-      this.board.snake.turn(dir);
-    }
-  }
-
   step() {
     this.board.snake.move();
     this.drawBoard();
-    this.drawSnake();
+    this.drawPieces(this.board.snake.segments, 'snake-body');
+    this.drawPieces(this.board.apples, 'apple');
   }
 
-  drawSnake() {
-    this.board.snake.segments.forEach((arr)=> {
+  drawPieces(boardPiece, className) {
+    boardPiece.forEach((arr)=> {
       const target = `#${arr[0]}_${arr[1]}`;
-      this.$el.find(target).addClass('snake-body');
+      this.$el.find(target).addClass(className);
     });
   }
 
@@ -132,7 +124,6 @@ class View {
       })
     });
   }
-
 }
 
 View.KEYMAP = {
@@ -163,17 +154,14 @@ class Board {
     return [mid,mid];
   }
 
-  // stateOfBoard() {
-  //   this.grid = this.cleanGrid();
-  //   this.mapItems(this.apples, 'apple');
-  //   this.mapItems(this.snake.segments, 'snake-body');
-  // }
-  //
-  // mapItems(arr, className) {
-  //   arr.forEach((pos)=> {
-  //     this.grid[pos[0]][pos[1]].state = className};
-  //   });
-  // }
+  randomApple() {
+    //places an apple randomly on the board
+  }
+
+  eatCheck() {
+    //check if snakehead is at apple position
+    //if YES, removeApple, randomApple, growSnake
+  }
 
   cleanGrid() {
     return Array(Board.SIZE).fill("").map(function(el) {
@@ -198,6 +186,7 @@ class Snake {
     this.pos = pos;
     this.dir = "S";
     this.segments = [pos];
+    this.generateStarterSegments();
 
   }
 
@@ -211,10 +200,18 @@ class Snake {
     this.dir = direction;
   }
 
+  generateStarterSegments() {
+    while(this.segments.length < Snake.STARTLENGTH) {
+      const segment = [this.pos[0]-1,this.pos[1]];
+      this.segments.push(segment);
+    }
+  }
+
 
 }
 
 Snake.DIRECTIONS = ["N","E","S","W"];
+Snake.STARTLENGTH = 3;
 
 module.exports = Snake;
 
