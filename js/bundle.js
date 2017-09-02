@@ -145,9 +145,10 @@ const Snake = __webpack_require__(4);
 
 class Board {
   constructor() {
-    this.apples = [this.randomPosition()];
     this.grid = this.cleanGrid();
     this.snake = new Snake(this.spawnPoint());
+    this.apples = [];
+    this.addApples();
   }
 
   spawnPoint() {
@@ -157,6 +158,22 @@ class Board {
 
   randomPosition() {
     return [Math.floor(Math.random() * Board.SIZE), Math.floor(Math.random() * Board.SIZE)];
+  }
+
+  addApples() {
+    this.apples = [this.randomUnusedPosition(), this.randomUnusedPosition()];
+  }
+
+  randomUnusedPosition() {
+    const position = this.randomPosition();
+    const used = this.apples.concat(this.snake.segments);
+    var isValid = true;
+    used.forEach((arr) => {
+      if(arr[0] === position[0] && arr[1] === position[1]) {
+        isValid = false;
+      }
+    })
+    return isValid ? position : this.randomUnusedPosition();
   }
 
   bumpCheck() {
@@ -180,7 +197,7 @@ class Board {
     this.apples.forEach((arr, idx) => {
       if(arr[0] === pos[0] && arr[1] === pos[1]) {
         this.removeApple(idx);
-        this.apples = [this.randomPosition()];
+        this.apples.push(this.randomPosition());
         this.snake.grow();
       }
     })
