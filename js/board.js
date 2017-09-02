@@ -2,7 +2,7 @@ const Snake = require('./snake.js');
 
 class Board {
   constructor() {
-    this.apples = [[0,0]];
+    this.apples = [this.randomPosition()];
     this.grid = this.cleanGrid();
     this.snake = new Snake(this.spawnPoint());
   }
@@ -12,13 +12,18 @@ class Board {
     return [mid,mid];
   }
 
-  randomApple() {
+  randomPosition() {
     //places an apple randomly on the board
+    return [Math.floor(Math.random() * 25), Math.floor(Math.random() * 25)];
   }
 
-  eatCheck() {
+  bumpCheck() {
     //check if snakehead is at apple position
     //if YES, removeApple, randomApple, growSnake
+    //ELSE if snake head at snake position
+    //--killSnake endGame
+    //ELSE if snake head at wall position
+    //--killSnake endGame
   }
 
   cleanGrid() {
