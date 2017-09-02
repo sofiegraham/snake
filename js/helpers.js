@@ -13,7 +13,7 @@ const helpers = {
   },
 
   generateColorStops: function(colArr1, colArr2) {
-    const steps = 10;
+    const steps = helpers.STEPS;
     var rStop = colArr1[0];
     var gStop = colArr1[1];
     var bStop = colArr1[2];
@@ -31,9 +31,11 @@ const helpers = {
   },
 
   generateColors: function(){
-    return helpers.generateColorStops(helpers.PINK, helpers.YELLOW).concat
+    const rainbow = helpers.generateColorStops(helpers.PINK, helpers.YELLOW).concat
     (helpers.generateColorStops(helpers.YELLOW, helpers.BLUE)).concat
-    (helpers.generateColorStops(helpers.BLUE, helpers.PURPLE));
+    (helpers.generateColorStops(helpers.BLUE, helpers.PURPLE)).concat
+    (helpers.generateColorStops(helpers.PURPLE, helpers.PINK));
+    return rainbow.concat(rainbow).concat(rainbow).concat(rainbow);
   },
 
   PINK: [255,187,230],
@@ -41,7 +43,7 @@ const helpers = {
   BLUE: [94, 178, 221],
   PURPLE: [144,88,179],
 
-  STEPS: 10
+  STEPS: 5
 }
 
 module.exports = helpers;

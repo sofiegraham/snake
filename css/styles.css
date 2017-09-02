@@ -1,5 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+
+
 body {
-  background-color: #
+  background-color: #262329;
+  font-family: 'Raleway', sans-serif;
+  color: #91849e;
 }
 
 
@@ -15,6 +20,10 @@ table {
   margin: auto;
 }
 
+h1 {
+  padding: 30px 0;
+}
+
 
 .square {
   height: 10px;
@@ -22,13 +31,18 @@ table {
 }
 
 .empty {
-  background-color: #e3e3e3;
+  background-color: #1c1919;
 }
 
 .apple {
-  background-color: blue;
+  background-color: #1c565f;
 }
 
 .snake-body {
-  background: linear-gradient(135deg, rgb(30,87,153) 0%, rgb(51,8,49) 100%);
+  background: #e3e3e3;
+}
+
+.score {
+  padding: 20px 0;
+  font-size: 20px;
 }

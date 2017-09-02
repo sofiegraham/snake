@@ -27,7 +27,7 @@ class View {
     }
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
-    this.drawPieces(this.board.apples, 'apple');
+    this.drawApples();
     this.drawGUI();
   }
 
@@ -36,6 +36,13 @@ class View {
       console.log(View.COLORS[idx], View.COLORS[idx + 1]);
       const target = `#${arr[0]}_${arr[1]}`;
       this.$el.find(target).css({"background": `linear-gradient(135deg, rgb(${View.COLORS[idx]}) 0%, rgb(${View.COLORS[idx + 1]}) 100%)`});
+    });
+  }
+
+  drawApples() {
+    this.board.apples.forEach((arr, idx)=> {
+      const target = `#${arr[0]}_${arr[1]}`;
+      this.$el.find(target).addClass('apple');
     });
   }
 
