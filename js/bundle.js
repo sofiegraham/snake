@@ -146,9 +146,10 @@ const Snake = __webpack_require__(4);
 class Board {
   constructor() {
     this.grid = this.cleanGrid();
-    this.snake = new Snake(this.spawnPoint());
+    this.snake = new Snake(this.spawnPoint(), this);
     this.apples = [];
     this.addApples();
+    this.size = Board.SIZE;
   }
 
   spawnPoint() {
@@ -190,7 +191,7 @@ class Board {
   }
 
   isOffGrid(pos) {
-    return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[0] < 0);
+    return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[1] < 0);
   }
 
   appleBump(pos) {
@@ -226,10 +227,12 @@ module.exports = Board;
 /***/ (function(module, exports, __webpack_require__) {
 
 const helpers = __webpack_require__(5);
+const Board = __webpack_require__(3);
 
 class Snake {
-  constructor(pos) {
+  constructor(pos, board) {
     this.pos = pos;
+    this.board = board;
     this.dir = "S";
     this.segments = [pos];
     this.generateStarterSegments();
@@ -242,7 +245,28 @@ class Snake {
       this.segments.pop();
     }
     this.growing = false;
+    if(this.board.isOffGrid(this.pos)) {
+      this.pos = this.wrappedPos(this.pos);
+    }
     this.segments.unshift(this.pos);
+  }
+
+  wrappedPos(pos) {
+    const newPos = [];
+    newPos[0] = pos[0];
+    newPos[1] = pos[1];
+    const size = this.board.size;
+    if(pos[0] < 0) {
+      newPos[0] = size;
+    } else if (pos[0] > size) {
+      newPos[0] = 0;
+    }
+    if(pos[1] < 0) {
+      newPos[1] = size;
+    } else if (pos[1] > size) {
+      newPos[1] = 0;
+    }
+    return newPos;
   }
 
   turn(direction) {

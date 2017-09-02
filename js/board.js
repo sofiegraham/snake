@@ -3,9 +3,10 @@ const Snake = require('./snake.js');
 class Board {
   constructor() {
     this.grid = this.cleanGrid();
-    this.snake = new Snake(this.spawnPoint());
+    this.snake = new Snake(this.spawnPoint(), this);
     this.apples = [];
     this.addApples();
+    this.size = Board.SIZE;
   }
 
   spawnPoint() {
@@ -47,7 +48,7 @@ class Board {
   }
 
   isOffGrid(pos) {
-    return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[0] < 0);
+    return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[1] < 0);
   }
 
   appleBump(pos) {
