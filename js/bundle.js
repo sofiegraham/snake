@@ -91,10 +91,17 @@ class View {
   }
 
   bindKeyListeners() {
-    $(document).on('keydown', this.changeDir(event));
+    $(window).on('keydown', (event) => {
+      console.log(event);
+      const dir = event.key;
+      if(View.KEYMAP[dir]) {
+        this.board.snake.turn(View.KEYMAP[dir]);
+      }
+    });
   }
 
   changeDir(event) {
+    console.log(event);
     const dir = event.key;
     if(View.KEYMAP[dir]) {
       this.board.snake.turn(dir);
@@ -109,9 +116,8 @@ class View {
 
   drawSnake() {
     this.board.snake.segments.forEach((arr)=> {
-      const segmentPos = JSON.stringify(arr);
-      this.$el.find('#' + segmentPos).addClass('apple');
-      $('#' + segmentPos).removeClass('empty');
+      const target = `#${arr[0]}_${arr[1]}`;
+      this.$el.find(target).addClass('snake-body');
     });
   }
 
@@ -121,8 +127,7 @@ class View {
     this.board.grid.forEach((arr, aIdx) => {
       $('#board').append('<tr id="row' + aIdx + '"></tr>')
       arr.forEach((el, elIdx)=> {
-        const newSquare = $('<td class="square empty" id="' + JSON.stringify([aIdx,elIdx]) + '"></td>');
-        newSquare.data("pos", [aIdx,elIdx]);
+        const newSquare = $(`<td class="square empty" id="${aIdx}_${elIdx}"></td>`);
         $('#row' + aIdx).append(newSquare);
       })
     });
