@@ -24,10 +24,8 @@ class Snake {
   }
 
   wrappedPos(pos) {
-    const newPos = [];
-    newPos[0] = pos[0];
-    newPos[1] = pos[1];
-    const size = this.board.size;
+    const newPos = pos;
+    const size = this.board.size - 1;
     if(pos[0] < 0) {
       newPos[0] = size;
     } else if (pos[0] > size) {

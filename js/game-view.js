@@ -1,11 +1,12 @@
 const Board = require('./board.js');
+const helpers = require('./helpers.js');
 
 class View {
   constructor($el) {
     this.$el = $el;
     this.board = new Board();
     this.bindKeyListeners();
-    setInterval(this.step.bind(this), 100);
+    this.animate = setInterval(this.step.bind(this), 100);
   }
 
   bindKeyListeners() {
@@ -22,17 +23,35 @@ class View {
     this.board.bumpCheck();
     if(this.board.deathCheck()) {
       alert("DEATH!");
+      clearInterval(this.animate);
     }
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
     this.drawPieces(this.board.apples, 'apple');
+    this.drawGUI();
   }
 
   drawPieces(boardPiece, className) {
-    boardPiece.forEach((arr)=> {
+    boardPiece.forEach((arr, idx)=> {
+      console.log(View.COLORS[idx], View.COLORS[idx + 1]);
       const target = `#${arr[0]}_${arr[1]}`;
-      this.$el.find(target).addClass(className);
+      this.$el.find(target).css({"background": `linear-gradient(135deg, rgb(${View.COLORS[idx]}) 0%, rgb(${View.COLORS[idx + 1]}) 100%)`});
     });
+  }
+
+  /*
+  calc the amount of stops
+  for each stop, increment the gradient
+  save as 'style'
+
+  rgb(30,87,153) 0%, rgb(51,8,49) 100%
+
+  */
+
+
+
+  drawGUI() {
+    this.$el.find(`#board`).after(`<div class="score">Score: ${this.board.score}</div>`);
   }
 
   drawBoard() {
@@ -47,6 +66,8 @@ class View {
     });
   }
 }
+
+View.COLORS = helpers.generateColors();
 
 View.KEYMAP = {
   w: "N",

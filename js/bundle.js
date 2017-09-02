@@ -81,13 +81,14 @@ $(document).ready(function() {
 /***/ (function(module, exports, __webpack_require__) {
 
 const Board = __webpack_require__(3);
+const helpers = __webpack_require__(5);
 
 class View {
   constructor($el) {
     this.$el = $el;
     this.board = new Board();
     this.bindKeyListeners();
-    setInterval(this.step.bind(this), 100);
+    this.animate = setInterval(this.step.bind(this), 100);
   }
 
   bindKeyListeners() {
@@ -104,17 +105,35 @@ class View {
     this.board.bumpCheck();
     if(this.board.deathCheck()) {
       alert("DEATH!");
+      clearInterval(this.animate);
     }
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
     this.drawPieces(this.board.apples, 'apple');
+    this.drawGUI();
   }
 
   drawPieces(boardPiece, className) {
-    boardPiece.forEach((arr)=> {
+    boardPiece.forEach((arr, idx)=> {
+      console.log(View.COLORS[idx], View.COLORS[idx + 1]);
       const target = `#${arr[0]}_${arr[1]}`;
-      this.$el.find(target).addClass(className);
+      this.$el.find(target).css({"background": `linear-gradient(135deg, rgb(${View.COLORS[idx]}) 0%, rgb(${View.COLORS[idx + 1]}) 100%)`});
     });
+  }
+
+  /*
+  calc the amount of stops
+  for each stop, increment the gradient
+  save as 'style'
+
+  rgb(30,87,153) 0%, rgb(51,8,49) 100%
+
+  */
+
+
+
+  drawGUI() {
+    this.$el.find(`#board`).after(`<div class="score">Score: ${this.board.score}</div>`);
   }
 
   drawBoard() {
@@ -129,6 +148,8 @@ class View {
     });
   }
 }
+
+View.COLORS = helpers.generateColors();
 
 View.KEYMAP = {
   w: "N",
@@ -153,6 +174,7 @@ class Board {
     this.apples = [];
     this.addApples();
     this.size = Board.SIZE;
+    this.score = 0;
   }
 
   spawnPoint() {
@@ -208,6 +230,7 @@ class Board {
         this.removeApple(idx);
         this.apples.push(this.randomPosition());
         this.snake.grow();
+        this.score ++;
       }
     })
   }
@@ -260,10 +283,8 @@ class Snake {
   }
 
   wrappedPos(pos) {
-    const newPos = [];
-    newPos[0] = pos[0];
-    newPos[1] = pos[1];
-    const size = this.board.size;
+    const newPos = pos;
+    const size = this.board.size - 1;
     if(pos[0] < 0) {
       newPos[0] = size;
     } else if (pos[0] > size) {
@@ -327,7 +348,38 @@ const helpers = {
     S: [1,0],
     E: [0,1],
     W: [0,-1]
-  }
+  },
+
+  generateColorStops: function(colArr1, colArr2) {
+    const steps = 10;
+    var rStop = colArr1[0];
+    var gStop = colArr1[1];
+    var bStop = colArr1[2];
+    const red = Math.floor((rStop - colArr2[0]) /steps);
+    const green = Math.floor((gStop - colArr2[1]) /steps);
+    const blue = Math.floor((bStop - colArr2[2]) /steps);
+    const colors = [];
+    for(var i = 0; i < steps; i++) {
+      colors.push(`${rStop},${gStop},${bStop}`);
+      rStop -= red;
+      gStop -= green;
+      bStop -= blue;
+    }
+    return colors;
+  },
+
+  generateColors: function(){
+    return helpers.generateColorStops(helpers.PINK, helpers.YELLOW).concat
+    (helpers.generateColorStops(helpers.YELLOW, helpers.BLUE)).concat
+    (helpers.generateColorStops(helpers.BLUE, helpers.PURPLE));
+  },
+
+  PINK: [255,187,230],
+  YELLOW: [241, 244, 167],
+  BLUE: [94, 178, 221],
+  PURPLE: [144,88,179],
+
+  STEPS: 10
 }
 
 module.exports = helpers;

@@ -1,3 +1,21 @@
+body {
+  background-color: #
+}
+
+
+table {
+  border-collapse: collapse;
+}
+
+#game {
+  text-align: center;
+}
+
+#board {
+  margin: auto;
+}
+
+
 .square {
   height: 10px;
   width: 10px;
@@ -12,5 +30,5 @@
 }
 
 .snake-body {
-  background-color: green;
+  background: linear-gradient(135deg, rgb(30,87,153) 0%, rgb(51,8,49) 100%);
 }

@@ -7,6 +7,7 @@ class Board {
     this.apples = [];
     this.addApples();
     this.size = Board.SIZE;
+    this.score = 0;
   }
 
   spawnPoint() {
@@ -62,6 +63,7 @@ class Board {
         this.removeApple(idx);
         this.apples.push(this.randomPosition());
         this.snake.grow();
+        this.score ++;
       }
     })
   }
