@@ -20,6 +20,9 @@ class View {
   step() {
     this.board.snake.move();
     this.board.bumpCheck();
+    if(this.board.deathCheck()) {
+      alert("DEATH!");
+    }
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
     this.drawPieces(this.board.apples, 'apple');

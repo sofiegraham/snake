@@ -102,6 +102,9 @@ class View {
   step() {
     this.board.snake.move();
     this.board.bumpCheck();
+    if(this.board.deathCheck()) {
+      alert("DEATH!");
+    }
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
     this.drawPieces(this.board.apples, 'apple');
@@ -180,18 +183,23 @@ class Board {
   bumpCheck() {
     const snakeHead = this.snake.pos;
     this.appleBump(snakeHead);
-
-
-    //check if snakehead is at apple position
-    //if YES, removeApple, randomApple, growSnake
-    //ELSE if snake head at snake position
-    //--killSnake endGame
-    //ELSE if snake head at wall position
-    //--killSnake endGame
   }
 
   isOffGrid(pos) {
     return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[1] < 0);
+  }
+
+  deathCheck() {
+    const pos = this.snake.pos;
+    var death = false;
+    this.snake.segments.forEach((arr, idx) => {
+      if(idx > 0) {
+        if(arr[0] === pos[0] && arr[1] === pos[1]) {
+          death = true;
+        }
+      }
+    })
+    return death;
   }
 
   appleBump(pos) {
@@ -269,8 +277,18 @@ class Snake {
     return newPos;
   }
 
+  isValidDirection(newDir) {
+    const curDir = this.dir;
+    return ((curDir === "N" && newDir !== "S") ||
+      (curDir === "S" && newDir !== "N") ||
+      (curDir === "W" && newDir !== "E") ||
+      (curDir === "E" && newDir !== "W"));
+  }
+
   turn(direction) {
-    this.dir = direction;
+    if(this.isValidDirection(direction)) {
+      this.dir = direction;
+    }
   }
 
   grow() {

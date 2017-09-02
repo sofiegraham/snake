@@ -37,18 +37,23 @@ class Board {
   bumpCheck() {
     const snakeHead = this.snake.pos;
     this.appleBump(snakeHead);
-
-
-    //check if snakehead is at apple position
-    //if YES, removeApple, randomApple, growSnake
-    //ELSE if snake head at snake position
-    //--killSnake endGame
-    //ELSE if snake head at wall position
-    //--killSnake endGame
   }
 
   isOffGrid(pos) {
     return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[1] < 0);
+  }
+
+  deathCheck() {
+    const pos = this.snake.pos;
+    var death = false;
+    this.snake.segments.forEach((arr, idx) => {
+      if(idx > 0) {
+        if(arr[0] === pos[0] && arr[1] === pos[1]) {
+          death = true;
+        }
+      }
+    })
+    return death;
   }
 
   appleBump(pos) {

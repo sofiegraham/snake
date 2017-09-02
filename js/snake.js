@@ -41,8 +41,18 @@ class Snake {
     return newPos;
   }
 
+  isValidDirection(newDir) {
+    const curDir = this.dir;
+    return ((curDir === "N" && newDir !== "S") ||
+      (curDir === "S" && newDir !== "N") ||
+      (curDir === "W" && newDir !== "E") ||
+      (curDir === "E" && newDir !== "W"));
+  }
+
   turn(direction) {
-    this.dir = direction;
+    if(this.isValidDirection(direction)) {
+      this.dir = direction;
+    }
   }
 
   grow() {
