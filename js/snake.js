@@ -11,12 +11,19 @@ class Snake {
 
   move() {
     this.pos = helpers.nextPosition(this.pos,this.dir);
-    this.segments.pop();
+    if(this.growing !== true) {
+      this.segments.pop();
+    }
+    this.growing = false;
     this.segments.unshift(this.pos);
   }
 
   turn(direction) {
     this.dir = direction;
+  }
+
+  grow() {
+    this.growing = true;
   }
 
   generateStarterSegments() {

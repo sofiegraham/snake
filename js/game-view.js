@@ -5,7 +5,7 @@ class View {
     this.$el = $el;
     this.board = new Board();
     this.bindKeyListeners();
-    setInterval(this.step.bind(this), 1000);
+    setInterval(this.step.bind(this), 100);
   }
 
   bindKeyListeners() {
@@ -19,6 +19,7 @@ class View {
 
   step() {
     this.board.snake.move();
+    this.board.bumpCheck();
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
     this.drawPieces(this.board.apples, 'apple');

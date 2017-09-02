@@ -87,7 +87,7 @@ class View {
     this.$el = $el;
     this.board = new Board();
     this.bindKeyListeners();
-    setInterval(this.step.bind(this), 1000);
+    setInterval(this.step.bind(this), 100);
   }
 
   bindKeyListeners() {
@@ -101,6 +101,7 @@ class View {
 
   step() {
     this.board.snake.move();
+    this.board.bumpCheck();
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
     this.drawPieces(this.board.apples, 'apple');
@@ -155,17 +156,40 @@ class Board {
   }
 
   randomPosition() {
-    //places an apple randomly on the board
-    return [Math.floor(Math.random() * 25), Math.floor(Math.random() * 25)];
+    return [Math.floor(Math.random() * Board.SIZE), Math.floor(Math.random() * Board.SIZE)];
   }
 
   bumpCheck() {
+    const snakeHead = this.snake.pos;
+    this.appleBump(snakeHead);
+
+
     //check if snakehead is at apple position
     //if YES, removeApple, randomApple, growSnake
     //ELSE if snake head at snake position
     //--killSnake endGame
     //ELSE if snake head at wall position
     //--killSnake endGame
+  }
+
+  isOffGrid(pos) {
+    return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[0] < 0);
+  }
+
+  appleBump(pos) {
+    this.apples.forEach((arr, idx) => {
+      if(arr[0] === pos[0] && arr[1] === pos[1]) {
+        this.removeApple(idx);
+        this.apples = [this.randomPosition()];
+        this.snake.grow();
+      }
+    })
+  }
+
+  removeApple(idx) {
+    this.apples = this.apples.filter((el, eIdx) => {
+      return idx !== eIdx;
+    });
   }
 
   cleanGrid() {
@@ -197,12 +221,19 @@ class Snake {
 
   move() {
     this.pos = helpers.nextPosition(this.pos,this.dir);
-    this.segments.pop();
+    if(this.growing !== true) {
+      this.segments.pop();
+    }
+    this.growing = false;
     this.segments.unshift(this.pos);
   }
 
   turn(direction) {
     this.dir = direction;
+  }
+
+  grow() {
+    this.growing = true;
   }
 
   generateStarterSegments() {
