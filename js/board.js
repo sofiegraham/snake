@@ -42,7 +42,7 @@ class Board {
   }
 
   isOffGrid(pos) {
-    return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[1] < 0);
+    return (pos[0] > Board.SIZE - 1 || pos[1] > Board.SIZE - 1 || pos[0] < 0 || pos[1] < 0);
   }
 
   deathCheck() {

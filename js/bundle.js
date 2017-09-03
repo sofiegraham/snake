@@ -60,14 +60,178 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const View = __webpack_require__(2);
+const Snake = __webpack_require__(4);
+
+class Board {
+  constructor() {
+    this.grid = this.cleanGrid();
+    this.snake = new Snake(this.spawnPoint(), this);
+    this.apples = [];
+    this.superApples = [];
+    this.addApples();
+    this.size = Board.SIZE;
+    this.score = 0;
+  }
+
+  spawnPoint() {
+    const mid = Math.floor(this.grid.length/2);
+    return [mid,mid];
+  }
+
+  randomPosition() {
+    return [Math.floor(Math.random() * Board.SIZE), Math.floor(Math.random() * Board.SIZE)];
+  }
+
+  addApples() {
+    this.apples = [this.randomUnusedPosition(), this.randomUnusedPosition()];
+  }
+
+  randomUnusedPosition() {
+    const position = this.randomPosition();
+    const used = this.apples.concat(this.snake.segments).concat(this.superApples);
+    var isValid = true;
+    used.forEach((arr) => {
+      if(arr[0] === position[0] && arr[1] === position[1]) {
+        isValid = false;
+      }
+    })
+    return isValid ? position : this.randomUnusedPosition();
+  }
+
+  bumpCheck() {
+    const snakeHead = this.snake.pos;
+    this.appleBump(snakeHead);
+  }
+
+  isOffGrid(pos) {
+    return (pos[0] > Board.SIZE - 1 || pos[1] > Board.SIZE - 1 || pos[0] < 0 || pos[1] < 0);
+  }
+
+  deathCheck() {
+    const pos = this.snake.pos;
+    var death = false;
+    this.snake.segments.forEach((arr, idx) => {
+      if(idx > 0) {
+        if(arr[0] === pos[0] && arr[1] === pos[1]) {
+          death = true;
+        }
+      }
+    })
+    return death;
+  }
+
+  appleBump(pos) {
+    this.apples.forEach((arr, idx) => {
+      if(arr[0] === pos[0] && arr[1] === pos[1]) {
+        this.removeApple(idx);
+        this.apples.push(this.randomUnusedPosition());
+        if(this.superApples.length < 1 && this.randomUnusedPosition()) {
+          this.superApples.push(this.randomPosition());
+        }
+        this.snake.grow();
+        this.score += 5;
+      }
+    })
+
+    this.superApples.forEach((arr, idx) => {
+      if(arr[0] === pos[0] && arr[1] === pos[1]) {
+        this.superApples.pop();
+        this.snake.shrink();
+        this.score ++;
+      }
+    })
+  }
+
+  randomSuperApple() {
+    const makeApple = Math.floor(Math.random() * 3);
+    return makeApple === 2;
+  }
+
+  removeApple(idx) {
+    this.apples = this.apples.filter((el, eIdx) => {
+      return idx !== eIdx;
+    });
+  }
+
+  cleanGrid() {
+    return Array(Board.SIZE).fill("").map(function(el) {
+      return Array(Board.SIZE).fill(undefined);
+    });
+  }
+}
+
+Board.SIZE = 25;
+
+module.exports = Board;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+const helpers = {
+
+  nextPosition: function(currentPos, direction) {
+    const dir = helpers.DIRECTIONS[direction];
+    return [currentPos[0] + dir[0], currentPos[1] + dir[1]];
+  },
+
+  DIRECTIONS: {
+    N: [-1,0],
+    S: [1,0],
+    E: [0,1],
+    W: [0,-1]
+  },
+
+  generateColorStops: function(colArr1, colArr2) {
+    const steps = helpers.STEPS;
+    var rStop = colArr1[0];
+    var gStop = colArr1[1];
+    var bStop = colArr1[2];
+    const red = Math.floor((rStop - colArr2[0]) /steps);
+    const green = Math.floor((gStop - colArr2[1]) /steps);
+    const blue = Math.floor((bStop - colArr2[2]) /steps);
+    const colors = [];
+    for(var i = 0; i < steps; i++) {
+      colors.push(`${rStop},${gStop},${bStop}`);
+      rStop -= red;
+      gStop -= green;
+      bStop -= blue;
+    }
+    return colors;
+  },
+
+  generateColors: function(){
+    const rainbow = helpers.generateColorStops(helpers.PINK, helpers.YELLOW).concat
+    (helpers.generateColorStops(helpers.YELLOW, helpers.BLUE)).concat
+    (helpers.generateColorStops(helpers.BLUE, helpers.PURPLE)).concat
+    (helpers.generateColorStops(helpers.PURPLE, helpers.PINK));
+    return rainbow.concat(rainbow).concat(rainbow).concat(rainbow);
+  },
+
+  PINK: [255,187,230],
+  YELLOW: [241, 244, 167],
+  BLUE: [94, 178, 221],
+  PURPLE: [144,88,179],
+
+  STEPS: 5
+}
+
+module.exports = helpers;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const View = __webpack_require__(3);
 
 $(document).ready(function() {
   const $el = $('.snake');
@@ -76,12 +240,11 @@ $(document).ready(function() {
 
 
 /***/ }),
-/* 1 */,
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Board = __webpack_require__(3);
-const helpers = __webpack_require__(5);
+const Board = __webpack_require__(0);
+const helpers = __webpack_require__(1);
 
 class View {
   constructor($el) {
@@ -178,120 +341,11 @@ module.exports = View;
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const Snake = __webpack_require__(4);
-
-class Board {
-  constructor() {
-    this.grid = this.cleanGrid();
-    this.snake = new Snake(this.spawnPoint(), this);
-    this.apples = [];
-    this.superApples = [];
-    this.addApples();
-    this.size = Board.SIZE;
-    this.score = 0;
-  }
-
-  spawnPoint() {
-    const mid = Math.floor(this.grid.length/2);
-    return [mid,mid];
-  }
-
-  randomPosition() {
-    return [Math.floor(Math.random() * Board.SIZE), Math.floor(Math.random() * Board.SIZE)];
-  }
-
-  addApples() {
-    this.apples = [this.randomUnusedPosition(), this.randomUnusedPosition()];
-  }
-
-  randomUnusedPosition() {
-    const position = this.randomPosition();
-    const used = this.apples.concat(this.snake.segments).concat(this.superApples);
-    var isValid = true;
-    used.forEach((arr) => {
-      if(arr[0] === position[0] && arr[1] === position[1]) {
-        isValid = false;
-      }
-    })
-    return isValid ? position : this.randomUnusedPosition();
-  }
-
-  bumpCheck() {
-    const snakeHead = this.snake.pos;
-    this.appleBump(snakeHead);
-  }
-
-  isOffGrid(pos) {
-    return (pos[0] > Board.SIZE || pos[1] > Board.SIZE || pos[0] < 0 || pos[1] < 0);
-  }
-
-  deathCheck() {
-    const pos = this.snake.pos;
-    var death = false;
-    this.snake.segments.forEach((arr, idx) => {
-      if(idx > 0) {
-        if(arr[0] === pos[0] && arr[1] === pos[1]) {
-          death = true;
-        }
-      }
-    })
-    return death;
-  }
-
-  appleBump(pos) {
-    this.apples.forEach((arr, idx) => {
-      if(arr[0] === pos[0] && arr[1] === pos[1]) {
-        this.removeApple(idx);
-        this.apples.push(this.randomUnusedPosition());
-        if(this.superApples.length < 1 && this.randomUnusedPosition()) {
-          this.superApples.push(this.randomPosition());
-        }
-        this.snake.grow();
-        this.score += 5;
-      }
-    })
-
-    this.superApples.forEach((arr, idx) => {
-      if(arr[0] === pos[0] && arr[1] === pos[1]) {
-        this.superApples.pop();
-        this.snake.shrink();
-        this.score ++;
-      }
-    })
-  }
-
-  randomSuperApple() {
-    const makeApple = Math.floor(Math.random() * 3);
-    return makeApple === 2;
-  }
-
-  removeApple(idx) {
-    this.apples = this.apples.filter((el, eIdx) => {
-      return idx !== eIdx;
-    });
-  }
-
-  cleanGrid() {
-    return Array(Board.SIZE).fill("").map(function(el) {
-      return Array(Board.SIZE).fill(undefined);
-    });
-  }
-}
-
-Board.SIZE = 25;
-
-module.exports = Board;
-
-
-/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const helpers = __webpack_require__(5);
-const Board = __webpack_require__(3);
+const helpers = __webpack_require__(1);
+const Board = __webpack_require__(0);
 
 class Snake {
   constructor(pos, board) {
@@ -367,61 +421,6 @@ Snake.DIRECTIONS = ["N","E","S","W"];
 Snake.STARTLENGTH = 3;
 
 module.exports = Snake;
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-const helpers = {
-
-  nextPosition: function(currentPos, direction) {
-    const dir = helpers.DIRECTIONS[direction];
-    return [currentPos[0] + dir[0], currentPos[1] + dir[1]];
-  },
-
-  DIRECTIONS: {
-    N: [-1,0],
-    S: [1,0],
-    E: [0,1],
-    W: [0,-1]
-  },
-
-  generateColorStops: function(colArr1, colArr2) {
-    const steps = helpers.STEPS;
-    var rStop = colArr1[0];
-    var gStop = colArr1[1];
-    var bStop = colArr1[2];
-    const red = Math.floor((rStop - colArr2[0]) /steps);
-    const green = Math.floor((gStop - colArr2[1]) /steps);
-    const blue = Math.floor((bStop - colArr2[2]) /steps);
-    const colors = [];
-    for(var i = 0; i < steps; i++) {
-      colors.push(`${rStop},${gStop},${bStop}`);
-      rStop -= red;
-      gStop -= green;
-      bStop -= blue;
-    }
-    return colors;
-  },
-
-  generateColors: function(){
-    const rainbow = helpers.generateColorStops(helpers.PINK, helpers.YELLOW).concat
-    (helpers.generateColorStops(helpers.YELLOW, helpers.BLUE)).concat
-    (helpers.generateColorStops(helpers.BLUE, helpers.PURPLE)).concat
-    (helpers.generateColorStops(helpers.PURPLE, helpers.PINK));
-    return rainbow.concat(rainbow).concat(rainbow).concat(rainbow);
-  },
-
-  PINK: [255,187,230],
-  YELLOW: [241, 244, 167],
-  BLUE: [94, 178, 221],
-  PURPLE: [144,88,179],
-
-  STEPS: 5
-}
-
-module.exports = helpers;
 
 
 /***/ })
