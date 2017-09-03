@@ -17,7 +17,7 @@ class View {
   changeDir(event) {
     const dir = event.key;
     if(View.KEYMAP[dir]) {
-      this.throttle(this.board.snake.turn, View.ANIMATE/2)(View.KEYMAP[dir]);
+      this.throttle(this.board.snake.turn, View.ANIMATE/1.5)(View.KEYMAP[dir]);
     }
   }
 
@@ -37,13 +37,18 @@ class View {
     this.board.snake.move();
     this.board.bumpCheck();
     if(this.board.deathCheck()) {
-      alert("DEATH!");
+      this.drawEndScreen();
       clearInterval(this.animate);
     }
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
-    this.drawApples();
+    this.drawApples(this.board.apples, 'apple');
+    this.drawApples(this.board.superApples, 'super-apple');
     this.drawGUI();
+  }
+
+  drawEndScreen() {
+    $(`#tip`).text(`YOU DIED, LOSER!`);
   }
 
   drawPieces(boardPiece, className) {
@@ -53,22 +58,12 @@ class View {
     });
   }
 
-  drawApples() {
-    this.board.apples.forEach((arr, idx)=> {
+  drawApples(appleArr, className) {
+    appleArr.forEach((arr, idx)=> {
       const target = `#${arr[0]}_${arr[1]}`;
-      this.$el.find(target).addClass('apple');
+      this.$el.find(target).addClass(className);
     });
   }
-
-  /*
-  calc the amount of stops
-  for each stop, increment the gradient
-  save as 'style'
-
-  rgb(30,87,153) 0%, rgb(51,8,49) 100%
-
-  */
-
 
 
   drawGUI() {

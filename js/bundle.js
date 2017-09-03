@@ -99,7 +99,7 @@ class View {
   changeDir(event) {
     const dir = event.key;
     if(View.KEYMAP[dir]) {
-      this.throttle(this.board.snake.turn, View.ANIMATE/2)(View.KEYMAP[dir]);
+      this.throttle(this.board.snake.turn, View.ANIMATE/1.5)(View.KEYMAP[dir]);
     }
   }
 
@@ -119,13 +119,18 @@ class View {
     this.board.snake.move();
     this.board.bumpCheck();
     if(this.board.deathCheck()) {
-      alert("DEATH!");
+      this.drawEndScreen();
       clearInterval(this.animate);
     }
     this.drawBoard();
     this.drawPieces(this.board.snake.segments, 'snake-body');
-    this.drawApples();
+    this.drawApples(this.board.apples, 'apple');
+    this.drawApples(this.board.superApples, 'super-apple');
     this.drawGUI();
+  }
+
+  drawEndScreen() {
+    $(`#tip`).text(`YOU DIED, LOSER!`);
   }
 
   drawPieces(boardPiece, className) {
@@ -135,22 +140,12 @@ class View {
     });
   }
 
-  drawApples() {
-    this.board.apples.forEach((arr, idx)=> {
+  drawApples(appleArr, className) {
+    appleArr.forEach((arr, idx)=> {
       const target = `#${arr[0]}_${arr[1]}`;
-      this.$el.find(target).addClass('apple');
+      this.$el.find(target).addClass(className);
     });
   }
-
-  /*
-  calc the amount of stops
-  for each stop, increment the gradient
-  save as 'style'
-
-  rgb(30,87,153) 0%, rgb(51,8,49) 100%
-
-  */
-
 
 
   drawGUI() {
@@ -193,6 +188,7 @@ class Board {
     this.grid = this.cleanGrid();
     this.snake = new Snake(this.spawnPoint(), this);
     this.apples = [];
+    this.superApples = [];
     this.addApples();
     this.size = Board.SIZE;
     this.score = 0;
@@ -213,7 +209,7 @@ class Board {
 
   randomUnusedPosition() {
     const position = this.randomPosition();
-    const used = this.apples.concat(this.snake.segments);
+    const used = this.apples.concat(this.snake.segments).concat(this.superApples);
     var isValid = true;
     used.forEach((arr) => {
       if(arr[0] === position[0] && arr[1] === position[1]) {
@@ -249,11 +245,27 @@ class Board {
     this.apples.forEach((arr, idx) => {
       if(arr[0] === pos[0] && arr[1] === pos[1]) {
         this.removeApple(idx);
-        this.apples.push(this.randomPosition());
+        this.apples.push(this.randomUnusedPosition());
+        if(this.superApples.length < 1 && this.randomUnusedPosition()) {
+          this.superApples.push(this.randomPosition());
+        }
         this.snake.grow();
+        this.score += 5;
+      }
+    })
+
+    this.superApples.forEach((arr, idx) => {
+      if(arr[0] === pos[0] && arr[1] === pos[1]) {
+        this.superApples.pop();
+        this.snake.shrink();
         this.score ++;
       }
     })
+  }
+
+  randomSuperApple() {
+    const makeApple = Math.floor(Math.random() * 3);
+    return makeApple === 2;
   }
 
   removeApple(idx) {
@@ -331,6 +343,10 @@ class Snake {
     if(this.isValidDirection(direction)) {
       this.dir = direction;
     }
+  }
+
+  shrink() {
+    this.segments.pop();
   }
 
   grow() {

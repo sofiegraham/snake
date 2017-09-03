@@ -53,6 +53,10 @@ class Snake {
     }
   }
 
+  shrink() {
+    this.segments.pop();
+  }
+
   grow() {
     this.growing = true;
   }

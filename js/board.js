@@ -5,6 +5,7 @@ class Board {
     this.grid = this.cleanGrid();
     this.snake = new Snake(this.spawnPoint(), this);
     this.apples = [];
+    this.superApples = [];
     this.addApples();
     this.size = Board.SIZE;
     this.score = 0;
@@ -25,7 +26,7 @@ class Board {
 
   randomUnusedPosition() {
     const position = this.randomPosition();
-    const used = this.apples.concat(this.snake.segments);
+    const used = this.apples.concat(this.snake.segments).concat(this.superApples);
     var isValid = true;
     used.forEach((arr) => {
       if(arr[0] === position[0] && arr[1] === position[1]) {
@@ -61,11 +62,27 @@ class Board {
     this.apples.forEach((arr, idx) => {
       if(arr[0] === pos[0] && arr[1] === pos[1]) {
         this.removeApple(idx);
-        this.apples.push(this.randomPosition());
+        this.apples.push(this.randomUnusedPosition());
+        if(this.superApples.length < 1 && this.randomUnusedPosition()) {
+          this.superApples.push(this.randomPosition());
+        }
         this.snake.grow();
+        this.score += 5;
+      }
+    })
+
+    this.superApples.forEach((arr, idx) => {
+      if(arr[0] === pos[0] && arr[1] === pos[1]) {
+        this.superApples.pop();
+        this.snake.shrink();
         this.score ++;
       }
     })
+  }
+
+  randomSuperApple() {
+    const makeApple = Math.floor(Math.random() * 3);
+    return makeApple === 2;
   }
 
   removeApple(idx) {
