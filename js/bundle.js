@@ -88,16 +88,31 @@ class View {
     this.$el = $el;
     this.board = new Board();
     this.bindKeyListeners();
-    this.animate = setInterval(this.step.bind(this), 100);
+    this.wait = false;
+    this.animate = setInterval(this.step.bind(this), View.ANIMATE);
   }
 
   bindKeyListeners() {
-    $(window).on('keydown', (event) => {
-      const dir = event.key;
-      if(View.KEYMAP[dir]) {
-        this.board.snake.turn(View.KEYMAP[dir]);
+    $(window).on('keydown', this.changeDir.bind(this));
+  }
+
+  changeDir(event) {
+    const dir = event.key;
+    if(View.KEYMAP[dir]) {
+      this.throttle(this.board.snake.turn, View.ANIMATE/2)(View.KEYMAP[dir]);
+    }
+  }
+
+  throttle(callback, limit) {
+    return (stuff) => {
+      if(!this.wait) {
+        callback.call(this.board.snake, stuff);
+        this.wait = true;
+        setTimeout(() => {
+          this.wait = false;
+        }, limit);
       }
-    });
+    }
   }
 
   step() {
@@ -115,7 +130,6 @@ class View {
 
   drawPieces(boardPiece, className) {
     boardPiece.forEach((arr, idx)=> {
-      console.log(View.COLORS[idx], View.COLORS[idx + 1]);
       const target = `#${arr[0]}_${arr[1]}`;
       this.$el.find(target).css({"background": `linear-gradient(135deg, rgb(${View.COLORS[idx]}) 0%, rgb(${View.COLORS[idx + 1]}) 100%)`});
     });
@@ -157,7 +171,7 @@ class View {
 }
 
 View.COLORS = helpers.generateColors();
-
+View.ANIMATE = 100;
 View.KEYMAP = {
   w: "N",
   s: "S",
